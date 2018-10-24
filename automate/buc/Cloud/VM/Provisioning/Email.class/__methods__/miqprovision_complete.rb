@@ -2,6 +2,7 @@
 # Description: This method sends an e-mail when the following event is raised:
 #
 # Events: vm_provisioned
+#feature change 2
 #
 # Model Notes:
 # 1. to_email_address - used to specify an email address in the case where the
