@@ -1,6 +1,6 @@
 # / Cloud / VM / Provisioning / Naming / default (vmname)
 
-# feature change
+# feature change 2 part 2
 #
 # Description: This is the default naming scheme
 # 1. If VM Name was not chosen during dialog processing then use vm_prefix
