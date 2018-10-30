@@ -3,6 +3,8 @@
 #
 # Events: vm_retire_warn, vm_retired, vm_entered_retirement
 #
+# Introducing a change
+#
 # Model Notes:
 # 1. to_email_address - used to specify an email address in the case where the
 #    vm's owner does not have an  email address. To specify more than one email
