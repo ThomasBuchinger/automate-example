@@ -1,0 +1,80 @@
+# rebase needs git version 1.7.3 or apperently libgit2 v0.24.0 (aka no RHEL6)
+
+---
+- hosts: localhost
+  vars:
+    git_tag: deployment_export
+    git_env_tag: DEV
+    commit_message: automatic deployment
+    export_tag: LAST_EXPORT
+    repo_dir: tmp_dir/my-awsome-project
+  tasks:
+  - name: "[Pre-Check] Check if num is defined"
+    fail:
+      msg: 'missing variable: num'
+    when: 'num is undefined'
+  - name: "[DUMMY][Deploy]: info | pre-check | tmpdir"
+    file:
+      path: tmp_dir
+      state: directory
+  - name: "[Deploy]: Content Deployment / clone cloudforms-content"
+    git:
+      repo: https://gitlab.company.com/user/my-awsome-project.git
+      dest: "{{ repo_dir }}"
+      update: no
+
+  #=======================================
+  # Setup Branch
+  #=======================================
+  - name: "[NEW] Content Deployment / create 'export' branch"
+    command: "git branch export LAST_EXPORT"
+    args:
+      chdir: "{{ repo_dir }}"
+  - name: "[NEW] Content Deployment / create working_br"
+    command: "git checkout export"
+    args:
+      chdir: "{{ repo_dir }}"
+
+
+  #=======================================
+  # export
+  #=======================================
+  - name: "[Deploy] Content Deployment / purge old content"
+    command: git rm -r master develop feature
+    args:
+      chdir: "{{ repo_dir }}"
+    ignore_errors: yes
+  - name: "[Deploy] Content Deployment / export objects with miqexport"
+    command: "./export.sh {{ repo_dir }} {{ num }}"
+  - name: "[Deploy] Content Deployment / git add"
+    command: "git add --all"
+    args:
+      chdir: "{{ repo_dir }}"
+  - name: "[Deploy] Content Deployment / git commit"
+    command: "git commit -m '{{ commit_message }}: {{ num }}'"
+    args:
+      chdir: "{{ repo_dir }}"
+      
+  #========================================
+  # Merge with master
+  #========================================
+  - name: "[NEW] Content Deployment / rebase onto master"
+    command: "git rebase --strategy recursive --strategy-option theirs master"
+    args:
+      chdir: "{{ repo_dir }}"
+  - name: "[NEW] Content Deployment / checkout master"
+    command: "git checkout master"
+    args:
+      chdir: "{{ repo_dir }}"
+  - name: "[NEW] Content Deployment / merge export"
+    command: "git merge export"
+    args:
+      chdir: "{{ repo_dir }}"
+  - name: "[NEW] Content Deployment / tag last export"
+    command: "git tag -f LAST_EXPORT master"
+    args:
+      chdir: "{{ repo_dir }}"
+  - name: "[NEW] Content Deployment / remove 'export' branch"
+    command: "git branch -d export"
+    args:
+      chdir: "{{ repo_dir }}"
