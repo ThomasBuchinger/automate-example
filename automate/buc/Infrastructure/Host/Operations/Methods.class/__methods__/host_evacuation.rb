@@ -79,4 +79,4 @@ vms.each do |v|
   v.migrate(target_host)
 end
 # change
-# this is a conflicting change
+# this is a conflicting change 2
